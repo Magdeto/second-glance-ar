@@ -54,7 +54,7 @@ Discover what's inside.</h1>
           <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
           <path d="M21 16v3a2 2 0 0 1-2 2h-3"></path>
         </svg>
-        Start Scanning
+        Scan
       </button>
 
       <div class="row-between" style="margin-top: 20px;">
@@ -214,6 +214,23 @@ Discover what's inside.</h1>
         });
       });
 
+      // Requests camera access first so users see the browser permission prompt
+      // before MindAR attempts to load targets.
+      async function ensureCameraPermission() {
+        if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error("Camera permission requires HTTPS or localhost with mediaDevices support");
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" },
+          audio: false
+        });
+
+        // Permission is granted once stream resolves; stop immediately so MindAR
+        // can open the camera itself.
+        stream.getTracks().forEach((track) => track.stop());
+      }
+
       // Phase 2: initialize MindAR on user gesture and drive screen states.
       async function startMindAR() {
         if (mindarStarting || mindarInstance) {
@@ -225,6 +242,8 @@ Discover what's inside.</h1>
         console.log("[MindAR] start");
 
         try {
+          await ensureCameraPermission();
+
           const MindARThree = window.MINDAR?.IMAGE?.MindARThree;
           if (!MindARThree) {
             throw new Error("MindARThree is unavailable");

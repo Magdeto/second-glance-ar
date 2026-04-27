@@ -90,12 +90,12 @@ body {
   color: var(--color-fg);
 }
 
+.logo-wrap #draw-main,
+.logo-wrap #draw-circle,
 .logo-wrap #draw-main path,
 .logo-wrap #draw-circle path {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 0.9px;
-  stroke-miterlimit: 10;
+  fill: currentColor;
+  stroke: none;
 }
 
 .logo-wrap #sparkles path {
@@ -173,9 +173,11 @@ body {
   color: var(--color-fg);
 }
 
+.loading-logo-svg #draw-main,
+.loading-logo-svg #draw-circle,
 .loading-logo-svg #draw-main path,
 .loading-logo-svg #draw-circle path {
-  fill: none;
+  fill: currentColor;
   stroke: currentColor;
   stroke-width: 0.9px;
   stroke-miterlimit: 10;
@@ -196,12 +198,14 @@ body {
 .loading-logo-svg #sparkle-2 { animation-delay: 0.08s; }
 .loading-logo-svg #sparkle-3 { animation-delay: 0.16s; }
 
+.loading-logo-svg #draw-main,
 .loading-logo-svg #draw-main path {
   stroke-dasharray: 700;
   stroke-dashoffset: 700;
   animation: sg-draw-main 2.4s cubic-bezier(.65,.05,.36,1) infinite;
 }
 
+.loading-logo-svg #draw-circle,
 .loading-logo-svg #draw-circle path {
   stroke-dasharray: 460;
   stroke-dashoffset: 460;
@@ -252,19 +256,19 @@ body {
 }
 
 @keyframes sg-draw-main {
-  0% { stroke-dashoffset: 700; }
-  35% { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: 0; }
+  0% { stroke-dashoffset: 700; fill-opacity: 0; stroke-opacity: 1; }
+  35% { stroke-dashoffset: 0; fill-opacity: 1; stroke-opacity: 0; }
+  100% { stroke-dashoffset: 0; fill-opacity: 1; stroke-opacity: 0; }
 }
 
 @keyframes sg-draw-circle {
-  0%, 27.5% { stroke-dashoffset: 460; }
-  65% { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: 0; }
+  0%, 0% { stroke-dashoffset: 460; fill-opacity: 0; stroke-opacity: 0.5; }
+  65% { stroke-dashoffset: 0; fill-opacity: 1; stroke-opacity: 0; }
+  100% { stroke-dashoffset: 0; fill-opacity: 1; stroke-opacity: 0; }
 }
 
 @keyframes sg-pop {
-  0%, 55% { opacity: 0; transform: scale(0.4); }
+  0%, 55% { opacity: 0; transform: scale(0.3); }
   70% { opacity: 1; transform: scale(1.15); }
   80%, 100% { opacity: 1; transform: scale(1); }
 }
