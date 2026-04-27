@@ -1,0 +1,488 @@
+:root {
+  --color-bg: #0a0a0a;
+  --color-frame: #14130f;
+  --color-fg: #f4f1ea;
+  --color-dim: rgba(244, 241, 234, 0.62);
+  --color-hairline: rgba(244, 241, 234, 0.14);
+  --color-panel: rgba(10, 10, 10, 0.58);
+  --color-accent: #7de3a1;
+  --color-error: #e5b85c;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-9: 40px;
+  --space-10: 48px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--color-frame);
+  color: var(--color-fg);
+  font-family: "Inter Tight", system-ui, -apple-system, sans-serif;
+}
+
+/* Mobile-first: native fullscreen viewport on phones. */
+body {
+  overflow: hidden;
+}
+
+.app-shell {
+  width: 100vw;
+  height: 100dvh;
+  position: relative;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+/* All screens occupy the same absolute viewport; JS toggles .is-active. */
+.screen {
+  position: absolute;
+  inset: 0;
+  padding: calc(72px + env(safe-area-inset-top)) 28px calc(36px + env(safe-area-inset-bottom));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 220ms ease, visibility 220ms ease;
+  background: var(--color-bg);
+  overflow: hidden;
+}
+
+.screen.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.micro {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-dim);
+}
+
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.logo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: var(--space-6);
+}
+
+.logo-wrap svg {
+  color: var(--color-fg);
+}
+
+.logo-wrap #draw-main path,
+.logo-wrap #draw-circle path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.9px;
+  stroke-miterlimit: 10;
+}
+
+.logo-wrap #sparkles path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.9px;
+  stroke-miterlimit: 10;
+}
+
+.wordmark {
+  margin-top: var(--space-4);
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-fg);
+  font-weight: 500;
+}
+
+.landing-copy {
+  margin-top: auto;
+  margin-bottom: var(--space-7);
+}
+
+.landing-copy h1 {
+  margin: 0;
+  font-size: clamp(46px, 14vw, 58px);
+  line-height: 1.06;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  white-space: pre-line;
+}
+
+.landing-copy p {
+  margin: var(--space-4) 0 0;
+  max-width: 310px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-dim);
+}
+
+.scan-button {
+  width: 100%;
+  height: 60px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-fg);
+  color: var(--color-bg);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+/* Loading screen uses the same dark visual language with subtle motion. */
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.loading-logo {
+  margin-top: auto;
+}
+
+/* Keep existing logo animation timing with the new Illustrator paths. */
+.loading-logo-svg {
+  color: var(--color-fg);
+}
+
+.loading-logo-svg #draw-main path,
+.loading-logo-svg #draw-circle path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.9px;
+  stroke-miterlimit: 10;
+}
+
+.loading-logo-svg #sparkles path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.9px;
+  stroke-miterlimit: 10;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: sg-pop 2.4s ease-out infinite;
+}
+
+.loading-logo-svg #sparkle-1 { animation-delay: 0s; }
+.loading-logo-svg #sparkle-2 { animation-delay: 0.08s; }
+.loading-logo-svg #sparkle-3 { animation-delay: 0.16s; }
+
+.loading-logo-svg #draw-main path {
+  stroke-dasharray: 700;
+  stroke-dashoffset: 700;
+  animation: sg-draw-main 2.4s cubic-bezier(.65,.05,.36,1) infinite;
+}
+
+.loading-logo-svg #draw-circle path {
+  stroke-dasharray: 460;
+  stroke-dashoffset: 460;
+  animation: sg-draw-circle 2.4s cubic-bezier(.65,.05,.36,1) infinite;
+}
+
+.loading-title {
+  margin-top: var(--space-8);
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+}
+
+.loading-title::after {
+  content: " . . .";
+  display: inline-block;
+  letter-spacing: 0.1em;
+  opacity: 0.65;
+  animation: loading-dots 1.4s infinite;
+}
+
+.loading-progress {
+  margin-top: auto;
+  width: 70%;
+  height: 1px;
+  position: relative;
+  overflow: hidden;
+  background: var(--color-hairline);
+}
+
+.loading-progress::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--color-fg), transparent);
+  animation: loading-shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes loading-dots {
+  0%, 20% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes loading-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes sg-draw-main {
+  0% { stroke-dashoffset: 700; }
+  35% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes sg-draw-circle {
+  0%, 27.5% { stroke-dashoffset: 460; }
+  65% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes sg-pop {
+  0%, 55% { opacity: 0; transform: scale(0.4); }
+  70% { opacity: 1; transform: scale(1.15); }
+  80%, 100% { opacity: 1; transform: scale(1); }
+}
+
+/* Active scan mock keeps camera-style darkness and a central corner frame. */
+.scan-screen {
+  background:
+    radial-gradient(120% 80% at 50% 60%, #2a2620 0%, #1a1714 55%, #0a0907 100%);
+  padding: 0;
+}
+
+.scan-overlay {
+  position: absolute;
+  inset: 0;
+  padding: calc(60px + env(safe-area-inset-top)) 18px calc(112px + env(safe-area-inset-bottom));
+  background: radial-gradient(transparent 40%, rgba(0, 0, 0, 0.24) 100%);
+}
+
+.glass-chip {
+  background: var(--color-panel);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-pill);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  background: var(--color-panel);
+  color: var(--color-fg);
+  display: grid;
+  place-items: center;
+}
+
+.scan-status {
+  padding: 8px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.scan-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 10px var(--color-accent);
+}
+
+.scan-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -52%);
+  width: min(244px, calc(100vw - 72px));
+  height: min(244px, calc(100vw - 72px));
+  border: 1.5px solid rgba(244, 241, 234, 0.78);
+  border-radius: 22px;
+}
+
+.scan-frame .corner {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-color: rgba(244, 241, 234, 0.9);
+  border-style: solid;
+  border-width: 0;
+}
+
+.corner.tl { top: -2px; left: -2px; border-top-width: 2.5px; border-left-width: 2.5px; border-top-left-radius: 22px; }
+.corner.tr { top: -2px; right: -2px; border-top-width: 2.5px; border-right-width: 2.5px; border-top-right-radius: 22px; }
+.corner.bl { bottom: -2px; left: -2px; border-bottom-width: 2.5px; border-left-width: 2.5px; border-bottom-left-radius: 22px; }
+.corner.br { bottom: -2px; right: -2px; border-bottom-width: 2.5px; border-right-width: 2.5px; border-bottom-right-radius: 22px; }
+
+.scan-instruction {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(110px + env(safe-area-inset-bottom));
+  text-align: center;
+}
+
+.scan-instruction strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Error state mirrors denied camera layout with clear guidance. */
+.error-top {
+  margin-top: var(--space-5);
+}
+
+.error-badge {
+  display: block;
+  text-align: center;
+  color: var(--color-error);
+  margin-top: var(--space-7);
+}
+
+.error-title {
+  margin: var(--space-3) 0 0;
+  text-align: center;
+  font-size: 26px;
+  line-height: 1.15;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.error-copy {
+  margin: 14px auto 0;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.55;
+  max-width: 310px;
+  color: var(--color-dim);
+}
+
+.error-steps {
+  margin: var(--space-5) auto 0;
+  max-width: 320px;
+  width: 100%;
+  border: 1px solid var(--color-hairline);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.error-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 4px;
+  font-size: 13.5px;
+}
+
+.error-sep {
+  height: 1px;
+  background: var(--color-hairline);
+}
+
+.error-actions {
+  margin-top: auto;
+}
+
+.ghost-link {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  border: 0;
+  background: transparent;
+  color: var(--color-dim);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.camera-block-icon {
+  margin: auto auto 0;
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+}
+
+/* Developer-only preview nav; remove in Phase 5. */
+.dev-nav {
+  position: absolute;
+  left: 50%;
+  bottom: calc(8px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: calc(100% - 16px);
+  max-width: 374px;
+  z-index: 90;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(20, 19, 15, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.dev-nav button {
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-fg);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dev-nav button.is-current {
+  color: var(--color-bg);
+  background: var(--color-fg);
+  border-color: transparent;
+}
+
+/* Larger devices: keep it responsive in a centered phone-stage preview. */
+@media (min-width: 768px) {
+  body {
+    display: grid;
+    place-items: center;
+    padding: 24px;
+  }
+
+  .app-shell {
+    width: min(100vw - 48px, 430px);
+    height: min(100dvh - 48px, 932px);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  }
+}

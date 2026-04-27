@@ -7,409 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --color-bg: #0a0a0a;
-      --color-frame: #14130f;
-      --color-fg: #f4f1ea;
-      --color-dim: rgba(244, 241, 234, 0.62);
-      --color-hairline: rgba(244, 241, 234, 0.14);
-      --color-panel: rgba(10, 10, 10, 0.58);
-      --color-accent: #7de3a1;
-      --color-error: #e5b85c;
-      --radius-xl: 24px;
-      --radius-pill: 999px;
-      --space-1: 4px;
-      --space-2: 8px;
-      --space-3: 12px;
-      --space-4: 16px;
-      --space-5: 20px;
-      --space-6: 24px;
-      --space-7: 28px;
-      --space-8: 32px;
-      --space-9: 40px;
-      --space-10: 48px;
-      --screen-w: 390px;
-      --screen-h: 844px;
-    }
-
-    * { box-sizing: border-box; }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      min-height: 100%;
-      background: var(--color-frame);
-      color: var(--color-fg);
-      font-family: "Inter Tight", system-ui, -apple-system, sans-serif;
-    }
-
-    body {
-      display: grid;
-      place-items: center;
-      padding: var(--space-6);
-    }
-
-    /* Main mobile viewport shell fixed to iPhone 14 dimensions. */
-    .app-shell {
-      width: min(100vw, var(--screen-w));
-      height: min(100dvh, var(--screen-h));
-      position: relative;
-      overflow: hidden;
-      background: var(--color-bg);
-      border-radius: var(--radius-xl);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
-    }
-
-    /* All screens occupy the same absolute viewport; JS toggles .is-active. */
-    .screen {
-      position: absolute;
-      inset: 0;
-      padding: 72px 28px 36px;
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      transition: opacity 220ms ease, visibility 220ms ease;
-      background: var(--color-bg);
-      overflow: hidden;
-    }
-
-    .screen.is-active {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: auto;
-    }
-
-    .micro {
-      font-family: "JetBrains Mono", ui-monospace, monospace;
-      font-size: 10px;
-      letter-spacing: 0.24em;
-      text-transform: uppercase;
-      color: var(--color-dim);
-    }
-
-    .row-between {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-3);
-    }
-
-    .logo-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: var(--space-6);
-    }
-
-    .wordmark {
-      margin-top: var(--space-4);
-      font-size: 10px;
-      letter-spacing: 0.32em;
-      text-transform: uppercase;
-      color: var(--color-fg);
-      font-weight: 500;
-    }
-
-    .landing-copy {
-      margin-top: auto;
-      margin-bottom: var(--space-7);
-    }
-
-    .landing-copy h1 {
-      margin: 0;
-      font-size: 58px;
-      line-height: 1.06;
-      font-weight: 400;
-      letter-spacing: -0.02em;
-      white-space: pre-line;
-    }
-
-    .landing-copy p {
-      margin: var(--space-4) 0 0;
-      max-width: 310px;
-      font-size: 16px;
-      line-height: 1.5;
-      color: var(--color-dim);
-    }
-
-    .scan-button {
-      width: 100%;
-      height: 60px;
-      border: 0;
-      border-radius: var(--radius-pill);
-      background: var(--color-fg);
-      color: var(--color-bg);
-      font-family: inherit;
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: 0.34em;
-      text-transform: uppercase;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-3);
-      cursor: pointer;
-    }
-
-    /* Loading screen uses the same dark visual language with subtle motion. */
-    .loading-screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-
-    .loading-logo {
-      margin-top: auto;
-    }
-
-    .loading-title {
-      margin-top: var(--space-8);
-      font-size: 18px;
-      letter-spacing: -0.01em;
-      font-weight: 400;
-    }
-
-    .loading-title::after {
-      content: " . . .";
-      display: inline-block;
-      letter-spacing: 0.1em;
-      opacity: 0.65;
-      animation: loading-dots 1.4s infinite;
-    }
-
-    .loading-progress {
-      margin-top: auto;
-      width: 70%;
-      height: 1px;
-      position: relative;
-      overflow: hidden;
-      background: var(--color-hairline);
-    }
-
-    .loading-progress::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, transparent, var(--color-fg), transparent);
-      animation: loading-shimmer 1.6s ease-in-out infinite;
-    }
-
-    @keyframes loading-dots {
-      0%, 20% { opacity: 0; }
-      50% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-
-    @keyframes loading-shimmer {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
-    }
-
-    /* Active scan mock keeps camera-style darkness and a central corner frame. */
-    .scan-screen {
-      background:
-        radial-gradient(120% 80% at 50% 60%, #2a2620 0%, #1a1714 55%, #0a0907 100%);
-      padding: 0;
-    }
-
-    .scan-overlay {
-      position: absolute;
-      inset: 0;
-      padding: 60px 18px 112px;
-      background: radial-gradient(transparent 40%, rgba(0, 0, 0, 0.24) 100%);
-    }
-
-    .glass-chip {
-      background: var(--color-panel);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: var(--radius-pill);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-
-    .icon-btn {
-      width: 38px;
-      height: 38px;
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 50%;
-      background: var(--color-panel);
-      color: var(--color-fg);
-      display: grid;
-      place-items: center;
-    }
-
-    .scan-status {
-      padding: 8px 14px;
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-    }
-
-    .scan-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--color-accent);
-      box-shadow: 0 0 10px var(--color-accent);
-    }
-
-    .scan-frame {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -52%);
-      width: 244px;
-      height: 244px;
-      border: 1.5px solid rgba(244, 241, 234, 0.78);
-      border-radius: 22px;
-    }
-
-    .scan-frame .corner {
-      position: absolute;
-      width: 26px;
-      height: 26px;
-      border-color: rgba(244, 241, 234, 0.9);
-      border-style: solid;
-      border-width: 0;
-    }
-
-    .corner.tl { top: -2px; left: -2px; border-top-width: 2.5px; border-left-width: 2.5px; border-top-left-radius: 22px; }
-    .corner.tr { top: -2px; right: -2px; border-top-width: 2.5px; border-right-width: 2.5px; border-top-right-radius: 22px; }
-    .corner.bl { bottom: -2px; left: -2px; border-bottom-width: 2.5px; border-left-width: 2.5px; border-bottom-left-radius: 22px; }
-    .corner.br { bottom: -2px; right: -2px; border-bottom-width: 2.5px; border-right-width: 2.5px; border-bottom-right-radius: 22px; }
-
-    .scan-instruction {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 110px;
-      text-align: center;
-    }
-
-    .scan-instruction strong {
-      display: block;
-      font-size: 15px;
-      font-weight: 500;
-      letter-spacing: -0.01em;
-    }
-
-    /* Error state mirrors denied camera layout with clear guidance. */
-    .error-top {
-      margin-top: var(--space-5);
-    }
-
-    .error-badge {
-      display: block;
-      text-align: center;
-      color: var(--color-error);
-      margin-top: var(--space-7);
-    }
-
-    .error-title {
-      margin: var(--space-3) 0 0;
-      text-align: center;
-      font-size: 26px;
-      line-height: 1.15;
-      font-weight: 400;
-      letter-spacing: -0.01em;
-    }
-
-    .error-copy {
-      margin: 14px auto 0;
-      text-align: center;
-      font-size: 14px;
-      line-height: 1.55;
-      max-width: 310px;
-      color: var(--color-dim);
-    }
-
-    .error-steps {
-      margin: var(--space-5) auto 0;
-      max-width: 320px;
-      width: 100%;
-      border: 1px solid var(--color-hairline);
-      border-radius: 14px;
-      padding: 14px 16px;
-    }
-
-    .error-step {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 10px 4px;
-      font-size: 13.5px;
-    }
-
-    .error-sep {
-      height: 1px;
-      background: var(--color-hairline);
-    }
-
-    .error-actions {
-      margin-top: auto;
-    }
-
-    .ghost-link {
-      display: block;
-      width: 100%;
-      margin-top: 14px;
-      border: 0;
-      background: transparent;
-      color: var(--color-dim);
-      font-size: 13px;
-      letter-spacing: 0.04em;
-      text-align: center;
-    }
-
-    .camera-block-icon {
-      margin: auto auto 0;
-      width: 88px;
-      height: 88px;
-      display: grid;
-      place-items: center;
-    }
-
-    /* Developer-only preview nav; remove in Phase 5. */
-    .dev-nav {
-      position: absolute;
-      left: 50%;
-      bottom: 8px;
-      transform: translateX(-50%);
-      width: calc(100% - 16px);
-      max-width: 374px;
-      z-index: 90;
-      padding: 8px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      background: rgba(20, 19, 15, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-    }
-
-    .dev-nav button {
-      height: 34px;
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--color-fg);
-      font-family: "JetBrains Mono", ui-monospace, monospace;
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .dev-nav button.is-current {
-      color: var(--color-bg);
-      background: var(--color-fg);
-      border-color: transparent;
-    }
-  </style>
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <main class="app-shell" aria-live="polite">
@@ -421,15 +19,19 @@
       </div>
 
       <div class="logo-wrap">
-        <svg width="56" height="56" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+        <svg width="56" height="56" viewBox="0 0 80.72 89.89" fill="none" aria-hidden="true">
           <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" color="#f4f1ea">
-            <path d="M 168 102 A 70 70 0 1 0 154 148" stroke-width="6"></path>
-            <path d="M 78 28 C 70 60, 78 90, 84 120 C 86 138, 80 152, 74 156 C 68 158, 64 152, 68 142 C 76 122, 96 96, 108 102 C 116 108, 110 130, 112 144 C 114 154, 122 154, 130 142 C 138 128, 148 108, 156 110 C 162 114, 158 130, 162 142" stroke-width="7.5"></path>
-          </g>
-          <g fill="#f4f1ea">
-            <path d="M 138 60 L 140.8 67.2 L 148 70 L 140.8 72.8 L 138 80 L 135.2 72.8 L 128 70 L 135.2 67.2 Z"></path>
-            <path d="M 155 51 L 156.96 56.04 L 162 58 L 156.96 59.96 L 155 65 L 153.04 59.96 L 148 58 L 153.04 56.04 Z"></path>
-            <path d="M 148 79 L 149.4 82.6 L 153 84 L 149.4 85.4 L 148 89 L 146.6 85.4 L 143 84 L 146.6 82.6 Z"></path>
+            <g id="sparkles">
+              <path id="sparkle-3" d="M49.99,29.3c.42-.61.61-1.81.61-1.81,0,0,.2,1.37.69,1.7s1.76.5,1.76.5c0,0-1.36.35-1.73.79s-.61,1.81-.61,1.81c0,0-.35-1.38-.69-1.7s-1.76-.5-1.76-.5c0,0,1.32-.18,1.73-.79Z"></path>
+              <path id="sparkle-2" d="M58.34,31.64c.54-.79.78-2.33.78-2.33,0,0,.26,1.76.89,2.19s2.27.65,2.27.65c0,0-1.75.45-2.23,1.02s-.78,2.33-.78,2.33c0,0-.45-1.78-.89-2.19s-2.27-.65-2.27-.65c0,0,1.69-.24,2.23-1.02Z"></path>
+              <path id="sparkle-1" d="M52.73,37.16c.33-.48.48-1.42.48-1.42,0,0,.16,1.08.54,1.34s1.39.4,1.39.4c0,0-1.07.28-1.37.63s-.48,1.42-.48,1.42c0,0-.27-1.09-.54-1.34s-1.39-.4-1.39-.4c0,0,1.04-.14,1.37-.63Z"></path>
+            </g>
+            <g id="draw-main">
+              <path d="M15.44,39.94C6.63,35.06-.81,20.36,1.13,10.27,2.24,3.34,9.76-2.1,16.7.79c3.95,1.68,6.04,4.91,7.78,8.29,3.71,8.44,6.49,17.47,7.42,26.64.89,10.45,1.28,25.48,1.8,35.97-.08,3.02.38,6.65-2.07,8.99-.33.26-.76.56-1.52.66-.69.12-1.68-.31-2.07-.79-1.16-1.41-1.89-2.83-2.6-4.47-4.42-10.34.08-21.87,3.28-31.86,1.03-3.06,1.69-6.1,3.69-8.89,2.36-3.43,7.08-5.17,10.69-2.58,3.04,2.08,4.62,5,5.95,8.21,2.38,5.76,3.2,11.96,4,18.01.16,2.01,1.08,5.36.5,7.44-.77,3.73-5.76,5.54-7.94,1.95-4.03-8.64-.34-20.19,8-24.81,6.28-2.61,9.31,7.05,10.31,11.58.54,2.35.88,6.36,2.35,8.29,1.48,2.05,4.99,3.52,7.15,1.7,1.89-2.04,2.99-5.15,3.46-7.89,0,0,.38.03.38.03-.42,3.04-1.28,6.02-3.31,8.44-1.21,1.2-3.08,1.4-4.61,1-5.41-1.26-5.9-6.72-7.05-11.18-.67-2.84-1.88-5.44-3.45-7.86-.74-1.09-1.81-2.01-2.77-2.17-2.11-.16-4.42,2.84-5.67,4.54-2.32,3.38-3.35,7.67-2.86,11.7.18,1.33.57,2.66,1.03,3.84.21.54.53.79.46.66-.02-.04-.16-.09-.19-.09-.04-.02,0-.03.06-.1.08-.12.16-.2.17-.35.06-.51.07-.94-.01-1.72-1.24-8.05-1.75-22.23-8.38-27.54-1.13-.73-1.99-.73-2.99-.17-3.1,1.95-3.58,5.51-4.93,9.26-3.16,9.9-8.35,22-2.38,31.75,0,0,.27.41.27.41.07.11.25.36.15.23-.14-.25-.78-.43-1.08-.38-.39.05-.48.17-.52.19.63-.87.73-2.56.8-3.88.18-3.66-.03-7.33-.08-11.06,0,0-.47-17.91-.47-17.91-.31-10.3-1.54-20.7-7.67-29.21-1.43-2.1-2.97-4.81-4.99-6.24-2.94-2.38-5.65.23-6.71,3.1-1.15,3.44-.74,7.69-.55,11.38.46,5.49,1.98,11.38,5.96,15.93l-.08.11h0Z"></path>
+            </g>
+            <g id="draw-circle">
+              <path d="M80.71,60.87c-8.09,25.35-40.92,37.51-63.25,22.43C4.39,74.53-3.38,57.45,1.44,42.03,7.59,21.65,30.38,7.93,51.06,14.72c9.87,3.02,18.87,9.92,23.04,19.49,2.61,5.9,3.54,12.33,3.32,18.69-.03,1.25,0,2.5-.06,3.78-.07,2.58-1.2,4.94-2.22,7.25-.05.12-.23.04-.18-.08.92-2.32,1.98-4.66,1.95-7.18.02-1.25-.03-2.51-.04-3.76.06-6.25-1.02-12.58-3.71-18.25-6.39-13.78-22.56-21.48-37.37-19.71C15.93,17.26-1.09,37.23,2.42,57.41c2.59,14.86,14.95,27.38,29.77,30.21,14.73,3.16,30.87-2.68,40.7-13.97,3.29-3.78,5.84-8.17,7.64-12.85.04-.12.24-.05.19.07h0Z"></path>
+            </g>
           </g>
         </svg>
         <span class="wordmark">Second Glance</span>
@@ -468,15 +70,19 @@ Discover what's inside.</h1>
       </div>
 
       <div class="loading-logo">
-        <svg width="120" height="120" viewBox="0 0 200 200" fill="none" aria-hidden="true">
-          <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" color="#f4f1ea">
-            <path d="M 168 102 A 70 70 0 1 0 154 148" stroke-width="5"></path>
-            <path d="M 78 28 C 70 60, 78 90, 84 120 C 86 138, 80 152, 74 156 C 68 158, 64 152, 68 142 C 76 122, 96 96, 108 102 C 116 108, 110 130, 112 144 C 114 154, 122 154, 130 142 C 138 128, 148 108, 156 110 C 162 114, 158 130, 162 142" stroke-width="6.5"></path>
-          </g>
-          <g fill="#f4f1ea">
-            <path d="M 138 60 L 140.8 67.2 L 148 70 L 140.8 72.8 L 138 80 L 135.2 72.8 L 128 70 L 135.2 67.2 Z"></path>
-            <path d="M 155 51 L 156.96 56.04 L 162 58 L 156.96 59.96 L 155 65 L 153.04 59.96 L 148 58 L 153.04 56.04 Z"></path>
-            <path d="M 148 79 L 149.4 82.6 L 153 84 L 149.4 85.4 L 148 89 L 146.6 85.4 L 143 84 L 146.6 82.6 Z"></path>
+        <svg class="loading-logo-svg" width="120" height="120" viewBox="0 0 80.72 89.89" fill="none" aria-hidden="true">
+          <g id="logo" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" color="#f4f1ea">
+            <g id="sparkles">
+              <path id="sparkle-3" d="M49.99,29.3c.42-.61.61-1.81.61-1.81,0,0,.2,1.37.69,1.7s1.76.5,1.76.5c0,0-1.36.35-1.73.79s-.61,1.81-.61,1.81c0,0-.35-1.38-.69-1.7s-1.76-.5-1.76-.5c0,0,1.32-.18,1.73-.79Z"></path>
+              <path id="sparkle-2" d="M58.34,31.64c.54-.79.78-2.33.78-2.33,0,0,.26,1.76.89,2.19s2.27.65,2.27.65c0,0-1.75.45-2.23,1.02s-.78,2.33-.78,2.33c0,0-.45-1.78-.89-2.19s-2.27-.65-2.27-.65c0,0,1.69-.24,2.23-1.02Z"></path>
+              <path id="sparkle-1" d="M52.73,37.16c.33-.48.48-1.42.48-1.42,0,0,.16,1.08.54,1.34s1.39.4,1.39.4c0,0-1.07.28-1.37.63s-.48,1.42-.48,1.42c0,0-.27-1.09-.54-1.34s-1.39-.4-1.39-.4c0,0,1.04-.14,1.37-.63Z"></path>
+            </g>
+            <g id="draw-main">
+              <path d="M15.44,39.94C6.63,35.06-.81,20.36,1.13,10.27,2.24,3.34,9.76-2.1,16.7.79c3.95,1.68,6.04,4.91,7.78,8.29,3.71,8.44,6.49,17.47,7.42,26.64.89,10.45,1.28,25.48,1.8,35.97-.08,3.02.38,6.65-2.07,8.99-.33.26-.76.56-1.52.66-.69.12-1.68-.31-2.07-.79-1.16-1.41-1.89-2.83-2.6-4.47-4.42-10.34.08-21.87,3.28-31.86,1.03-3.06,1.69-6.1,3.69-8.89,2.36-3.43,7.08-5.17,10.69-2.58,3.04,2.08,4.62,5,5.95,8.21,2.38,5.76,3.2,11.96,4,18.01.16,2.01,1.08,5.36.5,7.44-.77,3.73-5.76,5.54-7.94,1.95-4.03-8.64-.34-20.19,8-24.81,6.28-2.61,9.31,7.05,10.31,11.58.54,2.35.88,6.36,2.35,8.29,1.48,2.05,4.99,3.52,7.15,1.7,1.89-2.04,2.99-5.15,3.46-7.89,0,0,.38.03.38.03-.42,3.04-1.28,6.02-3.31,8.44-1.21,1.2-3.08,1.4-4.61,1-5.41-1.26-5.9-6.72-7.05-11.18-.67-2.84-1.88-5.44-3.45-7.86-.74-1.09-1.81-2.01-2.77-2.17-2.11-.16-4.42,2.84-5.67,4.54-2.32,3.38-3.35,7.67-2.86,11.7.18,1.33.57,2.66,1.03,3.84.21.54.53.79.46.66-.02-.04-.16-.09-.19-.09-.04-.02,0-.03.06-.1.08-.12.16-.2.17-.35.06-.51.07-.94-.01-1.72-1.24-8.05-1.75-22.23-8.38-27.54-1.13-.73-1.99-.73-2.99-.17-3.1,1.95-3.58,5.51-4.93,9.26-3.16,9.9-8.35,22-2.38,31.75,0,0,.27.41.27.41.07.11.25.36.15.23-.14-.25-.78-.43-1.08-.38-.39.05-.48.17-.52.19.63-.87.73-2.56.8-3.88.18-3.66-.03-7.33-.08-11.06,0,0-.47-17.91-.47-17.91-.31-10.3-1.54-20.7-7.67-29.21-1.43-2.1-2.97-4.81-4.99-6.24-2.94-2.38-5.65.23-6.71,3.1-1.15,3.44-.74,7.69-.55,11.38.46,5.49,1.98,11.38,5.96,15.93l-.08.11h0Z"></path>
+            </g>
+            <g id="draw-circle">
+              <path d="M80.71,60.87c-8.09,25.35-40.92,37.51-63.25,22.43C4.39,74.53-3.38,57.45,1.44,42.03,7.59,21.65,30.38,7.93,51.06,14.72c9.87,3.02,18.87,9.92,23.04,19.49,2.61,5.9,3.54,12.33,3.32,18.69-.03,1.25,0,2.5-.06,3.78-.07,2.58-1.2,4.94-2.22,7.25-.05.12-.23.04-.18-.08.92-2.32,1.98-4.66,1.95-7.18.02-1.25-.03-2.51-.04-3.76.06-6.25-1.02-12.58-3.71-18.25-6.39-13.78-22.56-21.48-37.37-19.71C15.93,17.26-1.09,37.23,2.42,57.41c2.59,14.86,14.95,27.38,29.77,30.21,14.73,3.16,30.87-2.68,40.7-13.97,3.29-3.78,5.84-8.17,7.64-12.85.04-.12.24-.05.19.07h0Z"></path>
+            </g>
           </g>
         </svg>
       </div>
