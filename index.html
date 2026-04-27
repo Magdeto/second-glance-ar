@@ -8,9 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/"}}</script>
 </head>
 <body>
   <main class="app-shell" aria-live="polite">
@@ -183,7 +181,10 @@ Discover what's inside.</h1>
     </nav>
   </main>
 
-  <script>
+  <script type="module">
+    import * as MindARExports from 'https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js';
+    const MindARThree = MindARExports.MindARThree ?? MindARExports.default?.MindARThree ?? MindARExports.default;
+
     // Phase 1 state: only one full-screen section can be active at a time.
     (function () {
       const screens = Array.from(document.querySelectorAll(".screen[data-screen]"));
@@ -244,9 +245,9 @@ Discover what's inside.</h1>
         try {
           await ensureCameraPermission();
 
-          const MindARThree = window.MINDAR?.IMAGE?.MindARThree;
+          console.log("[MindAR] MindARThree resolved =", typeof MindARThree);
           if (!MindARThree) {
-            throw new Error("MindARThree is unavailable");
+            throw new Error("MindARThree import failed — check CDN / module export");
           }
 
           mindarInstance = new MindARThree({
@@ -257,48 +258,6 @@ Discover what's inside.</h1>
           const renderer = mindarInstance.renderer;
           const scene = mindarInstance.scene;
           const camera = mindarInstance.camera;
-
-          // Phase 3: create a hidden <video> element for scene 1.
-          // Not attached to the DOM — Three.js reads it as a texture source.
-          const scene1Video = document.createElement("video");
-          scene1Video.src = "videos/scene-1.mp4";
-          scene1Video.loop = true;
-          scene1Video.muted = true;
-          scene1Video.playsInline = true;
-          scene1Video.setAttribute("playsinline", ""); // Required for autoplay on iOS
-          scene1Video.preload = "auto";
-
-          // Build the Three.js plane that displays the video over the marker.
-          // Width = 1 unit matches MindAR's normalised image target width.
-          const videoTexture = new THREE.VideoTexture(scene1Video);
-          const videoGeometry = new THREE.PlaneGeometry(1, 1);
-          const videoMaterial = new THREE.MeshBasicMaterial({
-            map: videoTexture,
-            transparent: true,
-            side: THREE.DoubleSide
-          });
-          const videoMesh = new THREE.Mesh(videoGeometry, videoMaterial);
-          videoMesh.visible = false; // Hidden until the target is found
-
-          // Anchor index 0 = first (and only) target in sticker-1.mind
-          const anchor1 = mindarInstance.addAnchor(0);
-          anchor1.group.add(videoMesh);
-
-          // Show and play when the marker is detected
-          anchor1.onTargetFound = function () {
-            console.log("[MindAR] targetFound: sticker-1");
-            videoMesh.visible = true;
-            scene1Video.play().catch(function (err) {
-              console.log("[MindAR] video play error:", err);
-            });
-          };
-
-          // Pause and hide when the marker is lost
-          anchor1.onTargetLost = function () {
-            console.log("[MindAR] targetLost: sticker-1");
-            videoMesh.visible = false;
-            scene1Video.pause();
-          };
 
           await mindarInstance.start();
           renderer.setAnimationLoop(function () {
