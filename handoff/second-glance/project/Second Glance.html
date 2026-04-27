@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Second Glance — AR App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #14130f; min-height: 100%; }
+  body { font-family: 'Inter Tight', system-ui, sans-serif; color: #f4f1ea; }
+  * { box-sizing: border-box; }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="logo.jsx"></script>
+<script type="text/babel" src="screens.jsx"></script>
+
+<script type="text/babel">
+const TWEAKS = /*EDITMODE-BEGIN*/{
+  "accent": "#7DE3A1",
+  "headline": "Point. Scan.\nDiscover what's inside.",
+  "sublead": "A second glance at the everyday objects you don't even care to look at.",
+  "showDetected": true,
+  "showLabels": true
+}/*EDITMODE-END*/;
+
+function App() {
+  const [tweaks, setTweak] = useTweaks(TWEAKS);
+
+  // Sub-prototype state — controls scan screen detection animation
+  const [scanDetected, setScanDetected] = React.useState(false);
+  React.useEffect(() => {
+    // auto-cycle for visual delight
+    const t = setInterval(() => setScanDetected((d) => !d), 4500);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <>
+      <DesignCanvas>
+        <DCSection id="main" title="Second Glance — Mobile Flow" subtitle="AR sticker scanner · 4 screens">
+          <DCArtboard id="landing" label="01 · Landing" width={420} height={900}>
+            <Frame>
+              <ScreenLanding
+                accent={tweaks.accent}
+                headline={tweaks.headline}
+                sublead={tweaks.sublead}
+              />
+            </Frame>
+          </DCArtboard>
+
+          <DCArtboard id="loading" label="02 · Loading" width={420} height={900}>
+            <Frame>
+              <ScreenLoading />
+            </Frame>
+          </DCArtboard>
+
+          <DCArtboard id="scan" label="03 · Active scan" width={420} height={900}>
+            <Frame>
+              <ScreenScan
+                detected={tweaks.showDetected ? scanDetected : false}
+                accent={tweaks.accent}
+              />
+            </Frame>
+            <ScanToggle detected={scanDetected} onToggle={() => setScanDetected(d => !d)} />
+          </DCArtboard>
+
+          <DCArtboard id="denied" label="04 · Permission denied" width={420} height={900}>
+            <Frame>
+              <ScreenDenied accent="#E5B85C" />
+            </Frame>
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection label="Accent" />
+        <TweakColor label="Lock / accent" value={tweaks.accent} onChange={(v) => setTweak('accent', v)} />
+        <TweakSection label="Landing copy" />
+        <TweakText label="Headline" value={tweaks.headline} onChange={(v) => setTweak('headline', v)} />
+        <TweakText label="Sublead" value={tweaks.sublead} onChange={(v) => setTweak('sublead', v)} />
+        <TweakSection label="Scan screen" />
+        <TweakToggle label="Auto-cycle detected state" value={tweaks.showDetected} onChange={(v) => setTweak('showDetected', v)} />
+      </TweaksPanel>
+    </>
+  );
+}
+
+// Wraps a screen in an iOS device bezel
+function Frame({ children }) {
+  return (
+    <div style={{ width: 390, height: 844, margin: "28px auto", display: "flex", justifyContent: "center" }}>
+      <IOSDevice width={390} height={844} dark={true}>
+        {children}
+      </IOSDevice>
+    </div>
+  );
+}
+
+// Floating manual-toggle below the scan artboard so reviewers can flip states deliberately
+function ScanToggle({ detected, onToggle }) {
+  return (
+    <div style={{
+      position: "absolute", bottom: 18, left: "50%", transform: "translateX(-50%)",
+      display: "flex", gap: 8, alignItems: "center",
+      padding: "8px 12px", borderRadius: 999,
+      background: "rgba(20,19,15,0.85)", border: "1px solid rgba(244,241,234,0.12)",
+      backdropFilter: "blur(12px)",
+      fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.16em",
+      color: "#f4f1ea", textTransform: "uppercase",
+    }}>
+      <span style={{ opacity: 0.6 }}>State</span>
+      <button onClick={onToggle} style={{
+        appearance: "none", border: "1px solid rgba(244,241,234,0.2)",
+        background: detected ? "transparent" : "rgba(244,241,234,0.12)",
+        color: "#f4f1ea", padding: "4px 10px", borderRadius: 999, cursor: "pointer",
+        fontFamily: "inherit", fontSize: "inherit", letterSpacing: "inherit", textTransform: "inherit",
+      }}>Searching</button>
+      <button onClick={onToggle} style={{
+        appearance: "none", border: `1px solid ${detected ? "rgba(125,227,161,0.6)" : "rgba(244,241,234,0.2)"}`,
+        background: detected ? "rgba(125,227,161,0.18)" : "transparent",
+        color: detected ? "#7DE3A1" : "#f4f1ea",
+        padding: "4px 10px", borderRadius: 999, cursor: "pointer",
+        fontFamily: "inherit", fontSize: "inherit", letterSpacing: "inherit", textTransform: "inherit",
+      }}>Locked</button>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#0a0a0a"/>
+  <g fill="none" stroke="#f4f1ea" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="100" cy="100" r="60"/>
+    <path d="M 78 70 C 76 96, 80 124, 78 138 M 78 138 C 84 122, 96 108, 104 116 C 108 128, 108 144, 116 144 C 124 142, 130 124, 138 126 C 144 130, 142 142, 142 142"/>
+  </g>
+  <g fill="#f4f1ea">
+    <path d="M 138 70 L 142 75 L 148 70 L 142 65 Z"/>
+    <path d="M 152 60 L 155 63 L 158 60 L 155 57 Z"/>
+  </g>
+</svg>
+</template>
+</body>
+</html>

@@ -1,0 +1,175 @@
+# ============================================================
+# SECOND GLANCE — .cursorrules
+# AR Web App | Personal Project
+# ============================================================
+
+## PROJECT OVERVIEW
+
+This is a marker-based WebAR web app called "Second Glance".
+The concept: hand-drawn black and white stickers of mundane objects.
+When a visitor points their phone camera at a sticker, an animated
+scene plays on top of it, revealing the hidden life inside the object.
+
+The app is built for an expo/exhibition setting.
+Visitors use their own phone. No app download. No account.
+One URL, open in browser, scan, experience.
+
+---
+
+## DESIGN BRIEF (for visual reference)
+
+- Dark UI, minimal, immersive
+- 4 screens: Landing, Loading, Active Scan, Error (camera denied)
+- The design prototype was built in Claude Design
+- All UI decisions should defer to that prototype unless explicitly told otherwise
+- Mobile-first: design and test at 390x844px (iPhone 14 viewport)
+
+---
+
+## TECH STACK — DO NOT DEVIATE FROM THIS
+
+- Language: Vanilla HTML, CSS, JavaScript only
+- No frameworks (no React, Vue, Svelte, or any other)
+- AR library: MindAR.js loaded via CDN
+- Hosting: Netlify (static site, no server-side logic)
+- No build tools, no npm, no bundlers
+- No localStorage or sessionStorage
+- No backend, no database, no API calls
+
+MindAR.js CDN links (always use these exact versions):
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
+  THREE.js (required by MindAR):
+  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+
+---
+
+## PROJECT FILE STRUCTURE
+
+Keep the project flat and simple:
+
+  /second-glance-ar
+  ├── index.html          ← entire app lives here to start
+  ├── style.css           ← extracted only when index.html gets unwieldy
+  ├── app.js              ← extracted only when index.html gets unwieldy
+  ├── /targets
+  │   ├── sticker-1.mind  ← MindAR compiled image target (sticker 1)
+  │   └── sticker-2.mind  ← MindAR compiled image target (sticker 2)
+  ├── /videos
+  │   ├── scene-1.mp4     ← alpha video for sticker 1 (transparent background)
+  │   └── scene-2.mp4     ← alpha video for sticker 2 (transparent background)
+  └── /assets
+      └── sticker-1.png   ← reference image of sticker (not used at runtime)
+      └── sticker-2.png   ← reference image of sticker (not used at runtime)
+
+---
+
+## FOUR SCREENS — WHAT EACH DOES
+
+### Screen 1: Landing
+- Shown on first load
+- Brief explanation of what to do ("Point your camera at a sticker")
+- Single CTA button
+- Tapping this button triggers camera permission request
+- Do not auto-request camera on page load — browser requires a user gesture
+
+### Screen 2: Loading
+- Shown after user taps the CTA, while MindAR initialises
+- Visual loading indicator (spinner or animated element)
+- MindAR can take 2-5 seconds to initialise — this state must be visible
+
+### Screen 3: Active Scan
+- The fullscreen camera feed
+- MindAR is active and scanning for sticker targets
+- A subtle UI hint to tell the user where to point (frame or crosshair)
+- When a sticker is detected: the corresponding alpha video plays on top of it
+- When the sticker is lost: the video pauses or hides
+- No other UI clutter — keep the experience immersive
+
+### Screen 4: Error
+- Shown if the user denies camera permission, or the browser does not support WebAR
+- Clear, friendly message explaining what went wrong
+- Instruction to try again or use a different browser
+- Do not show a blank white screen under any circumstance
+
+---
+
+## CORE LOGIC — HOW MINAR WORKS
+
+MindAR uses compiled .mind files as image targets.
+Each .mind file is generated from a sticker illustration using the MindAR Image Target Compiler:
+https://hiukim.github.io/mind-ar-js-doc/tools/compile
+
+When a target is detected, MindAR fires an "targetFound" event.
+When a target is lost, it fires a "targetLost" event.
+Use these events to show/hide and play/pause the corresponding video.
+
+Alpha videos must be WebM with alpha channel OR MP4 with a separate alpha mask.
+Test alpha channel support per browser — Safari handles this differently than Chrome.
+
+---
+
+## WORKING METHOD — CRITICAL, FOLLOW THIS ALWAYS
+
+This project is built step by step. Each step is tested before moving to the next.
+Do NOT attempt to build the whole app at once.
+Do NOT add features that haven't been asked for yet.
+Do NOT refactor or restructure code unless explicitly asked.
+
+### The build order is:
+
+  PHASE 1 — Static shell (no AR yet)
+    → Build all 4 screens in HTML/CSS only
+    → Screen switching works via JS (show/hide divs)
+    → No MindAR loaded yet
+    → Test: all screens visible and switchable on mobile browser
+    → STOP and wait for approval before Phase 2
+
+  PHASE 2 — MindAR initialisation
+    → Add MindAR CDN scripts
+    → Load the .mind target file for sticker 1 only
+    → Camera permission flow works
+    → Loading screen shows during init, scan screen shows after
+    → Test: camera opens, MindAR loads, no console errors
+    → STOP and wait for approval before Phase 3
+
+  PHASE 3 — First marker + video
+    → Wire up targetFound / targetLost events for sticker 1
+    → Alpha video for scene 1 plays on detection
+    → Video pauses or hides on loss
+    → Test: scan printed sticker 1, video appears, removing sticker pauses it
+    → STOP and wait for approval before Phase 4
+
+  PHASE 4 — Second marker + video
+    → Add sticker 2 target and scene 2 video
+    → Both stickers work independently
+    → Test: both stickers detected correctly, no interference
+    → STOP and wait for approval before Phase 5
+
+  PHASE 5 — Polish and expo readiness
+    → Error screen wired up for camera denial
+    → UI refinements matching the Claude Design prototype
+    → Test on both Android (Chrome) and iOS (Safari)
+    → Deploy to Netlify, test via live URL on real devices
+
+After Phase 5 is approved, the app is complete.
+
+---
+
+## CODING STYLE
+
+- Write clean, readable, commented code
+- Every logical block should have a short comment explaining what it does
+- Prefer clarity over cleverness — this code will be presented and defended
+- Use CSS custom properties (variables) for all colours and spacing
+- All IDs and class names should be descriptive, not generic (use .scan-screen not .screen-3)
+- Always handle the unhappy path (what if something fails or is missing?)
+
+---
+
+## WHEN IN DOUBT
+
+- Ask before assuming
+- Build less, test more
+- One thing at a time
+- If a step feels too large, split it into smaller steps and confirm before proceeding

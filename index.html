@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Second Glance - Phase 1 Shell</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --color-bg: #0a0a0a;
+      --color-frame: #14130f;
+      --color-fg: #f4f1ea;
+      --color-dim: rgba(244, 241, 234, 0.62);
+      --color-hairline: rgba(244, 241, 234, 0.14);
+      --color-panel: rgba(10, 10, 10, 0.58);
+      --color-accent: #7de3a1;
+      --color-error: #e5b85c;
+      --radius-xl: 24px;
+      --radius-pill: 999px;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-7: 28px;
+      --space-8: 32px;
+      --space-9: 40px;
+      --space-10: 48px;
+      --screen-w: 390px;
+      --screen-h: 844px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background: var(--color-frame);
+      color: var(--color-fg);
+      font-family: "Inter Tight", system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: var(--space-6);
+    }
+
+    /* Main mobile viewport shell fixed to iPhone 14 dimensions. */
+    .app-shell {
+      width: min(100vw, var(--screen-w));
+      height: min(100dvh, var(--screen-h));
+      position: relative;
+      overflow: hidden;
+      background: var(--color-bg);
+      border-radius: var(--radius-xl);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    /* All screens occupy the same absolute viewport; JS toggles .is-active. */
+    .screen {
+      position: absolute;
+      inset: 0;
+      padding: 72px 28px 36px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 220ms ease, visibility 220ms ease;
+      background: var(--color-bg);
+      overflow: hidden;
+    }
+
+    .screen.is-active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .micro {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 10px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--color-dim);
+    }
+
+    .row-between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+    }
+
+    .logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: var(--space-6);
+    }
+
+    .wordmark {
+      margin-top: var(--space-4);
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--color-fg);
+      font-weight: 500;
+    }
+
+    .landing-copy {
+      margin-top: auto;
+      margin-bottom: var(--space-7);
+    }
+
+    .landing-copy h1 {
+      margin: 0;
+      font-size: 58px;
+      line-height: 1.06;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      white-space: pre-line;
+    }
+
+    .landing-copy p {
+      margin: var(--space-4) 0 0;
+      max-width: 310px;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--color-dim);
+    }
+
+    .scan-button {
+      width: 100%;
+      height: 60px;
+      border: 0;
+      border-radius: var(--radius-pill);
+      background: var(--color-fg);
+      color: var(--color-bg);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.34em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-3);
+      cursor: pointer;
+    }
+
+    /* Loading screen uses the same dark visual language with subtle motion. */
+    .loading-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .loading-logo {
+      margin-top: auto;
+    }
+
+    .loading-title {
+      margin-top: var(--space-8);
+      font-size: 18px;
+      letter-spacing: -0.01em;
+      font-weight: 400;
+    }
+
+    .loading-title::after {
+      content: " . . .";
+      display: inline-block;
+      letter-spacing: 0.1em;
+      opacity: 0.65;
+      animation: loading-dots 1.4s infinite;
+    }
+
+    .loading-progress {
+      margin-top: auto;
+      width: 70%;
+      height: 1px;
+      position: relative;
+      overflow: hidden;
+      background: var(--color-hairline);
+    }
+
+    .loading-progress::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, var(--color-fg), transparent);
+      animation: loading-shimmer 1.6s ease-in-out infinite;
+    }
+
+    @keyframes loading-dots {
+      0%, 20% { opacity: 0; }
+      50% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes loading-shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* Active scan mock keeps camera-style darkness and a central corner frame. */
+    .scan-screen {
+      background:
+        radial-gradient(120% 80% at 50% 60%, #2a2620 0%, #1a1714 55%, #0a0907 100%);
+      padding: 0;
+    }
+
+    .scan-overlay {
+      position: absolute;
+      inset: 0;
+      padding: 60px 18px 112px;
+      background: radial-gradient(transparent 40%, rgba(0, 0, 0, 0.24) 100%);
+    }
+
+    .glass-chip {
+      background: var(--color-panel);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: var(--radius-pill);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 50%;
+      background: var(--color-panel);
+      color: var(--color-fg);
+      display: grid;
+      place-items: center;
+    }
+
+    .scan-status {
+      padding: 8px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .scan-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      box-shadow: 0 0 10px var(--color-accent);
+    }
+
+    .scan-frame {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -52%);
+      width: 244px;
+      height: 244px;
+      border: 1.5px solid rgba(244, 241, 234, 0.78);
+      border-radius: 22px;
+    }
+
+    .scan-frame .corner {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border-color: rgba(244, 241, 234, 0.9);
+      border-style: solid;
+      border-width: 0;
+    }
+
+    .corner.tl { top: -2px; left: -2px; border-top-width: 2.5px; border-left-width: 2.5px; border-top-left-radius: 22px; }
+    .corner.tr { top: -2px; right: -2px; border-top-width: 2.5px; border-right-width: 2.5px; border-top-right-radius: 22px; }
+    .corner.bl { bottom: -2px; left: -2px; border-bottom-width: 2.5px; border-left-width: 2.5px; border-bottom-left-radius: 22px; }
+    .corner.br { bottom: -2px; right: -2px; border-bottom-width: 2.5px; border-right-width: 2.5px; border-bottom-right-radius: 22px; }
+
+    .scan-instruction {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 110px;
+      text-align: center;
+    }
+
+    .scan-instruction strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+
+    /* Error state mirrors denied camera layout with clear guidance. */
+    .error-top {
+      margin-top: var(--space-5);
+    }
+
+    .error-badge {
+      display: block;
+      text-align: center;
+      color: var(--color-error);
+      margin-top: var(--space-7);
+    }
+
+    .error-title {
+      margin: var(--space-3) 0 0;
+      text-align: center;
+      font-size: 26px;
+      line-height: 1.15;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+    }
+
+    .error-copy {
+      margin: 14px auto 0;
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.55;
+      max-width: 310px;
+      color: var(--color-dim);
+    }
+
+    .error-steps {
+      margin: var(--space-5) auto 0;
+      max-width: 320px;
+      width: 100%;
+      border: 1px solid var(--color-hairline);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+
+    .error-step {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 4px;
+      font-size: 13.5px;
+    }
+
+    .error-sep {
+      height: 1px;
+      background: var(--color-hairline);
+    }
+
+    .error-actions {
+      margin-top: auto;
+    }
+
+    .ghost-link {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      border: 0;
+      background: transparent;
+      color: var(--color-dim);
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      text-align: center;
+    }
+
+    .camera-block-icon {
+      margin: auto auto 0;
+      width: 88px;
+      height: 88px;
+      display: grid;
+      place-items: center;
+    }
+
+    /* Developer-only preview nav; remove in Phase 5. */
+    .dev-nav {
+      position: absolute;
+      left: 50%;
+      bottom: 8px;
+      transform: translateX(-50%);
+      width: calc(100% - 16px);
+      max-width: 374px;
+      z-index: 90;
+      padding: 8px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(20, 19, 15, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .dev-nav button {
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--color-fg);
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .dev-nav button.is-current {
+      color: var(--color-bg);
+      background: var(--color-fg);
+      border-color: transparent;
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell" aria-live="polite">
+    <!-- Landing Screen -->
+    <section id="landing-screen" class="screen landing-screen is-active" data-screen="landing" aria-label="Landing screen">
+      <div class="row-between">
+        <span class="micro">SG · 001</span>
+        <span class="micro">v0.4 · beta</span>
+      </div>
+
+      <div class="logo-wrap">
+        <svg width="56" height="56" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+          <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" color="#f4f1ea">
+            <path d="M 168 102 A 70 70 0 1 0 154 148" stroke-width="6"></path>
+            <path d="M 78 28 C 70 60, 78 90, 84 120 C 86 138, 80 152, 74 156 C 68 158, 64 152, 68 142 C 76 122, 96 96, 108 102 C 116 108, 110 130, 112 144 C 114 154, 122 154, 130 142 C 138 128, 148 108, 156 110 C 162 114, 158 130, 162 142" stroke-width="7.5"></path>
+          </g>
+          <g fill="#f4f1ea">
+            <path d="M 138 60 L 140.8 67.2 L 148 70 L 140.8 72.8 L 138 80 L 135.2 72.8 L 128 70 L 135.2 67.2 Z"></path>
+            <path d="M 155 51 L 156.96 56.04 L 162 58 L 156.96 59.96 L 155 65 L 153.04 59.96 L 148 58 L 153.04 56.04 Z"></path>
+            <path d="M 148 79 L 149.4 82.6 L 153 84 L 149.4 85.4 L 148 89 L 146.6 85.4 L 143 84 L 146.6 82.6 Z"></path>
+          </g>
+        </svg>
+        <span class="wordmark">Second Glance</span>
+      </div>
+
+      <div class="landing-copy">
+        <span class="micro">FIELD GUIDE - No01</span>
+        <h1>Point. Scan.
+Discover what's inside.</h1>
+        <p>A second glance at the everyday objects you don't even care to look at.</p>
+      </div>
+
+      <button class="scan-button" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+          <path d="M3 8V5a2 2 0 0 1 2-2h3"></path>
+          <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
+          <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
+          <path d="M21 16v3a2 2 0 0 1-2 2h-3"></path>
+        </svg>
+        Scan
+      </button>
+
+      <div class="row-between" style="margin-top: 20px;">
+        <span class="micro">SG · 001</span>
+        <span class="micro" style="display:flex;align-items:center;gap:8px;color:#f4f1ea;">
+          <i class="scan-dot" aria-hidden="true"></i>READY
+        </span>
+      </div>
+    </section>
+
+    <!-- Loading Screen -->
+    <section id="loading-screen" class="screen loading-screen" data-screen="loading" aria-label="Loading screen">
+      <div class="row-between" style="position:absolute;left:24px;right:24px;top:64px;">
+        <span class="micro">SG · 001</span>
+        <span class="micro">init</span>
+      </div>
+
+      <div class="loading-logo">
+        <svg width="120" height="120" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+          <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" color="#f4f1ea">
+            <path d="M 168 102 A 70 70 0 1 0 154 148" stroke-width="5"></path>
+            <path d="M 78 28 C 70 60, 78 90, 84 120 C 86 138, 80 152, 74 156 C 68 158, 64 152, 68 142 C 76 122, 96 96, 108 102 C 116 108, 110 130, 112 144 C 114 154, 122 154, 130 142 C 138 128, 148 108, 156 110 C 162 114, 158 130, 162 142" stroke-width="6.5"></path>
+          </g>
+          <g fill="#f4f1ea">
+            <path d="M 138 60 L 140.8 67.2 L 148 70 L 140.8 72.8 L 138 80 L 135.2 72.8 L 128 70 L 135.2 67.2 Z"></path>
+            <path d="M 155 51 L 156.96 56.04 L 162 58 L 156.96 59.96 L 155 65 L 153.04 59.96 L 148 58 L 153.04 56.04 Z"></path>
+            <path d="M 148 79 L 149.4 82.6 L 153 84 L 149.4 85.4 L 148 89 L 146.6 85.4 L 143 84 L 146.6 82.6 Z"></path>
+          </g>
+        </svg>
+      </div>
+
+      <p class="loading-title">Getting ready</p>
+      <span class="micro">SG · 001</span>
+
+      <div class="loading-progress" aria-hidden="true"></div>
+      <span class="micro" style="margin-top: 14px;opacity:.68;">02 / 04 - AR Engine</span>
+    </section>
+
+    <!-- Active Scan Screen -->
+    <section id="scan-screen" class="screen scan-screen" data-screen="scan" aria-label="Active scan screen">
+      <div class="scan-overlay">
+        <div class="row-between">
+          <button class="icon-btn" type="button" aria-label="Close scan">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+              <path d="M18 6L6 18M6 6l12 12"></path>
+            </svg>
+          </button>
+          <span class="scan-status glass-chip">
+            <i class="scan-dot" aria-hidden="true"></i>
+            <span class="micro" style="color:#f4f1ea;letter-spacing:.28em;">SCANNING</span>
+          </span>
+        </div>
+
+        <div class="scan-frame" aria-hidden="true">
+          <i class="corner tl"></i>
+          <i class="corner tr"></i>
+          <i class="corner bl"></i>
+          <i class="corner br"></i>
+        </div>
+
+        <div class="scan-instruction">
+          <strong>Hold steady to scan.</strong>
+          <span class="micro">SG · 001</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Error Screen -->
+    <section id="error-screen" class="screen error-screen" data-screen="error" aria-label="Error screen">
+      <div class="row-between">
+        <span class="micro">SG · 001</span>
+        <span class="micro" style="color:var(--color-error);">ERR · 04</span>
+      </div>
+
+      <div class="error-top">
+        <button class="icon-btn" type="button" aria-label="Back">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="camera-block-icon">
+        <svg width="88" height="88" viewBox="0 0 88 88" fill="none" aria-hidden="true">
+          <circle cx="44" cy="44" r="42" stroke="rgba(244,241,234,0.18)" stroke-width="1.5" stroke-dasharray="3 5"></circle>
+          <g stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 36 L34 36 L38 30 L50 30 L54 36 L66 36 Q68 36 68 38 L68 60 Q68 62 66 62 L22 62 Q20 62 20 60 L20 38 Q20 36 22 36 Z"></path>
+            <circle cx="44" cy="48" r="9"></circle>
+          </g>
+          <line x1="20" y1="22" x2="68" y2="68" stroke="var(--color-error)" stroke-width="2.5" stroke-linecap="round"></line>
+        </svg>
+      </div>
+
+      <span class="micro error-badge">Camera access required</span>
+      <h1 class="error-title">We can't see what's in front of you yet.</h1>
+      <p class="error-copy">
+        Second Glance needs your camera to find stickers in the wild. Open Settings, switch the camera
+        permission on, then come back.
+      </p>
+
+      <div class="error-steps">
+        <div class="error-step"><span class="micro">01</span><span>Settings</span></div>
+        <div class="error-sep"></div>
+        <div class="error-step"><span class="micro">02</span><span>Privacy &amp; Security · Camera</span></div>
+        <div class="error-sep"></div>
+        <div class="error-step"><span class="micro">03</span><span>Toggle Second Glance on</span></div>
+      </div>
+
+      <div class="error-actions">
+        <button class="scan-button" type="button">Try again</button>
+        <button class="ghost-link" type="button">Open device settings -&gt;</button>
+      </div>
+    </section>
+
+    <!-- Temporary developer nav for screen previews. -->
+    <nav class="dev-nav" aria-label="Developer screen switcher">
+      <button type="button" data-target="landing" class="is-current">Landing</button>
+      <button type="button" data-target="loading">Loading</button>
+      <button type="button" data-target="scan">Scan</button>
+      <button type="button" data-target="error">Error</button>
+    </nav>
+  </main>
+
+  <script>
+    // Phase 1 state: only one full-screen section can be active at a time.
+    (function () {
+      const screens = Array.from(document.querySelectorAll(".screen[data-screen]"));
+      const navButtons = Array.from(document.querySelectorAll(".dev-nav button[data-target]"));
+
+      // Centralized screen-switch helper for both nav and future flow wiring.
+      function setActiveScreen(targetName) {
+        screens.forEach((screen) => {
+          const isMatch = screen.dataset.screen === targetName;
+          screen.classList.toggle("is-active", isMatch);
+        });
+
+        navButtons.forEach((button) => {
+          const isCurrent = button.dataset.target === targetName;
+          button.classList.toggle("is-current", isCurrent);
+          button.setAttribute("aria-pressed", String(isCurrent));
+        });
+      }
+
+      // Developer preview controls: tap buttons to inspect each UI state.
+      navButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+          setActiveScreen(button.dataset.target);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
