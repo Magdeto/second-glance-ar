@@ -31,7 +31,7 @@ One URL, open in browser, scan, experience.
 - Language: Vanilla HTML, CSS, JavaScript only
 - No frameworks (no React, Vue, Svelte, or any other)
 - AR library: MindAR.js loaded via CDN
-- Hosting: Netlify (static site, no server-side logic)
+- Hosting: Vercel (static site, no server-side logic)
 - No build tools, no npm, no bundlers
 - No localStorage or sessionStorage
 - No backend, no database, no API calls

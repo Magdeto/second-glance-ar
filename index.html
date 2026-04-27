@@ -8,6 +8,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
 </head>
 <body>
   <main class="app-shell" aria-live="polite">
@@ -44,14 +47,14 @@ Discover what's inside.</h1>
         <p>A second glance at the everyday objects you don't even care to look at.</p>
       </div>
 
-      <button class="scan-button" type="button">
+      <button id="start-scanning-btn" class="scan-button" type="button">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
           <path d="M3 8V5a2 2 0 0 1 2-2h3"></path>
           <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
           <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
           <path d="M21 16v3a2 2 0 0 1-2 2h-3"></path>
         </svg>
-        Scan
+        Start Scanning
       </button>
 
       <div class="row-between" style="margin-top: 20px;">
@@ -96,6 +99,7 @@ Discover what's inside.</h1>
 
     <!-- Active Scan Screen -->
     <section id="scan-screen" class="screen scan-screen" data-screen="scan" aria-label="Active scan screen">
+      <div id="ar-container" style="position:absolute;inset:0;z-index:0;"></div>
       <div class="scan-overlay">
         <div class="row-between">
           <button class="icon-btn" type="button" aria-label="Close scan">
@@ -184,6 +188,10 @@ Discover what's inside.</h1>
     (function () {
       const screens = Array.from(document.querySelectorAll(".screen[data-screen]"));
       const navButtons = Array.from(document.querySelectorAll(".dev-nav button[data-target]"));
+      const startScanningButton = document.getElementById("start-scanning-btn");
+      const arContainer = document.getElementById("ar-container");
+      let mindarInstance = null;
+      let mindarStarting = false;
 
       // Centralized screen-switch helper for both nav and future flow wiring.
       function setActiveScreen(targetName) {
@@ -205,6 +213,54 @@ Discover what's inside.</h1>
           setActiveScreen(button.dataset.target);
         });
       });
+
+      // Phase 2: initialize MindAR on user gesture and drive screen states.
+      async function startMindAR() {
+        if (mindarStarting || mindarInstance) {
+          return;
+        }
+
+        mindarStarting = true;
+        setActiveScreen("loading");
+        console.log("[MindAR] start");
+
+        try {
+          const MindARThree = window.MINDAR?.IMAGE?.MindARThree;
+          if (!MindARThree) {
+            throw new Error("MindARThree is unavailable");
+          }
+
+          mindarInstance = new MindARThree({
+            container: arContainer,
+            imageTargetSrc: "targets/sticker-1.mind"
+          });
+
+          const renderer = mindarInstance.renderer;
+          const scene = mindarInstance.scene;
+          const camera = mindarInstance.camera;
+
+          await mindarInstance.start();
+          renderer.setAnimationLoop(function () {
+            renderer.render(scene, camera);
+          });
+
+          console.log("[MindAR] ready");
+          setActiveScreen("scan");
+        } catch (error) {
+          console.log("[MindAR] error", error);
+          setActiveScreen("error");
+          if (mindarInstance && typeof mindarInstance.stop === "function") {
+            mindarInstance.stop();
+          }
+          mindarInstance = null;
+        } finally {
+          mindarStarting = false;
+        }
+      }
+
+      if (startScanningButton) {
+        startScanningButton.addEventListener("click", startMindAR);
+      }
     })();
   </script>
 </body>
