@@ -258,6 +258,48 @@ Discover what's inside.</h1>
           const scene = mindarInstance.scene;
           const camera = mindarInstance.camera;
 
+          // Phase 3: create a hidden <video> element for scene 1.
+          // Not attached to the DOM — Three.js reads it as a texture source.
+          const scene1Video = document.createElement("video");
+          scene1Video.src = "videos/scene-1.mp4";
+          scene1Video.loop = true;
+          scene1Video.muted = true;
+          scene1Video.playsInline = true;
+          scene1Video.setAttribute("playsinline", ""); // Required for autoplay on iOS
+          scene1Video.preload = "auto";
+
+          // Build the Three.js plane that displays the video over the marker.
+          // Width = 1 unit matches MindAR's normalised image target width.
+          const videoTexture = new THREE.VideoTexture(scene1Video);
+          const videoGeometry = new THREE.PlaneGeometry(1, 1);
+          const videoMaterial = new THREE.MeshBasicMaterial({
+            map: videoTexture,
+            transparent: true,
+            side: THREE.DoubleSide
+          });
+          const videoMesh = new THREE.Mesh(videoGeometry, videoMaterial);
+          videoMesh.visible = false; // Hidden until the target is found
+
+          // Anchor index 0 = first (and only) target in sticker-1.mind
+          const anchor1 = mindarInstance.addAnchor(0);
+          anchor1.group.add(videoMesh);
+
+          // Show and play when the marker is detected
+          anchor1.onTargetFound = function () {
+            console.log("[MindAR] targetFound: sticker-1");
+            videoMesh.visible = true;
+            scene1Video.play().catch(function (err) {
+              console.log("[MindAR] video play error:", err);
+            });
+          };
+
+          // Pause and hide when the marker is lost
+          anchor1.onTargetLost = function () {
+            console.log("[MindAR] targetLost: sticker-1");
+            videoMesh.visible = false;
+            scene1Video.pause();
+          };
+
           await mindarInstance.start();
           renderer.setAnimationLoop(function () {
             renderer.render(scene, camera);
