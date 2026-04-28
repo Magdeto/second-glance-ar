@@ -99,6 +99,8 @@ Discover what's inside.</h1>
     <section id="scan-screen" class="screen scan-screen" data-screen="scan" aria-label="Active scan screen">
       <!-- Phase 3: video source for sticker 1. Hidden as a DOM element; rendered via Three.js VideoTexture on the AR anchor. -->
       <video id="video-scene-1" src="videos/scene-1.mp4" muted playsinline loop aria-hidden="true" style="display:none;"></video>
+      <!-- Phase 4: video source for sticker 2. Same pattern as sticker 1. -->
+      <video id="video-scene-2" src="videos/scene-2.mp4" muted playsinline loop aria-hidden="true" style="display:none;"></video>
       <div id="ar-container" style="position:absolute;inset:0;z-index:0;"></div>
       <div class="scan-overlay">
         <div class="row-between">
@@ -255,7 +257,7 @@ Discover what's inside.</h1>
 
           mindarInstance = new MindARThree({
             container: arContainer,
-            imageTargetSrc: "targets/sticker-1.mind"
+            imageTargetSrc: "targets/targets.mind"
           });
 
           const renderer = mindarInstance.renderer;
@@ -290,6 +292,34 @@ Discover what's inside.</h1>
           anchor.onTargetLost = function () {
             console.log("Target 0 lost");
             videoEl.pause();
+            scanFrame.classList.remove("scan-frame--target-found");
+          };
+
+          // Phase 4: Anchor for sticker 2 (target index 1). Fully independent of sticker 1.
+          const videoEl2 = document.getElementById("video-scene-2");
+          const anchor2 = mindarInstance.addAnchor(1);
+
+          const geometry2 = new THREE.PlaneGeometry(1, 1);
+          const texture2 = new THREE.VideoTexture(videoEl2);
+          texture2.minFilter = THREE.LinearFilter;
+          const material2 = new THREE.MeshBasicMaterial({ map: texture2, transparent: true });
+          const plane2 = new THREE.Mesh(geometry2, material2);
+          videoEl2.addEventListener("loadedmetadata", function () {
+            if (videoEl2.videoHeight > 0) {
+              plane2.scale.set(1, videoEl2.videoHeight / videoEl2.videoWidth, 1);
+            }
+          }, { once: true });
+          anchor2.group.add(plane2);
+
+          anchor2.onTargetFound = function () {
+            console.log("Target 1 found");
+            videoEl2.play().catch(function (err) { console.log("[MindAR] video 2 play blocked", err); });
+            scanFrame.classList.add("scan-frame--target-found");
+          };
+
+          anchor2.onTargetLost = function () {
+            console.log("Target 1 lost");
+            videoEl2.pause();
             scanFrame.classList.remove("scan-frame--target-found");
           };
 
