@@ -437,6 +437,15 @@ body {
   place-items: center;
 }
 
+/* Phase 3: target-found state turns the scan frame accent green. */
+.scan-frame--target-found {
+  border-color: var(--color-accent);
+}
+
+.scan-frame--target-found .corner {
+  border-color: var(--color-accent);
+}
+
 /* Developer-only preview nav; remove in Phase 5. */
 .dev-nav {
   position: absolute;
