@@ -7,6 +7,7 @@
   --color-panel: rgba(10, 10, 10, 0.58);
   --color-accent: #7de3a1;
   --color-error: #e5b85c;
+  --color-dot-scan: #e05252;
   --radius-xl: 24px;
   --radius-pill: 999px;
   --space-1: 4px;
@@ -112,6 +113,12 @@ body {
   text-transform: uppercase;
   color: var(--color-fg);
   font-weight: 500;
+}
+
+/* Fix 1: landing screen is a flex column; logo stays top, bottom content is pushed down. */
+.landing-screen {
+  display: flex;
+  flex-direction: column;
 }
 
 .landing-copy {
@@ -321,6 +328,18 @@ body {
   box-shadow: 0 0 10px var(--color-accent);
 }
 
+/* Fix 3: scan status dot animation states. */
+@keyframes scan-dot-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+
+.scan-dot--scanning {
+  background: var(--color-dot-scan);
+  box-shadow: 0 0 10px var(--color-dot-scan);
+  animation: scan-dot-blink 0.9s ease-in-out infinite;
+}
+
 .scan-frame {
   position: absolute;
   top: 50%;
@@ -359,6 +378,12 @@ body {
   font-size: 15px;
   font-weight: 500;
   letter-spacing: -0.01em;
+}
+
+/* Fix 2: error screen is a flex column; content stays top, Try Again anchors to bottom. */
+.error-screen {
+  display: flex;
+  flex-direction: column;
 }
 
 /* Error state mirrors denied camera layout with clear guidance. */
@@ -430,7 +455,7 @@ body {
 }
 
 .camera-block-icon {
-  margin: auto auto 0;
+  margin: var(--space-7) auto 0;
   width: 88px;
   height: 88px;
   display: grid;
