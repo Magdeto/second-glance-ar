@@ -199,8 +199,27 @@ Discover what's inside.</h1>
       let mindarInstance = null;
       let mindarStarting = false;
 
+      // Fix 3: stop MindAR and release the camera stream whenever we leave the scan screen.
+      function stopAR() {
+        if (!mindarInstance) return;
+        if (mindarInstance.renderer) {
+          mindarInstance.renderer.setAnimationLoop(null);
+        }
+        const v1 = document.getElementById("video-scene-1");
+        const v2 = document.getElementById("video-scene-2");
+        if (v1) v1.pause();
+        if (v2) v2.pause();
+        mindarInstance.stop();
+        mindarInstance = null;
+      }
+
       // Centralized screen-switch helper for both nav and future flow wiring.
       function setActiveScreen(targetName) {
+        // Fix 3: shut down AR any time we navigate away from the scan screen.
+        if (targetName !== "scan") {
+          stopAR();
+        }
+
         screens.forEach((screen) => {
           const isMatch = screen.dataset.screen === targetName;
           screen.classList.toggle("is-active", isMatch);
@@ -259,6 +278,11 @@ Discover what's inside.</h1>
             container: arContainer,
             imageTargetSrc: "targets/targets.mind"
           });
+
+          // Fix 1: ensure canvas is visible and suppress any overlay MindAR created at instantiation.
+          mindarInstance.renderer.domElement.style.display = 'block';
+          const mindARUI = document.querySelector('.mindar-ui-overlay');
+          if (mindARUI) mindARUI.style.display = 'none';
 
           const renderer = mindarInstance.renderer;
           const scene = mindarInstance.scene;
@@ -324,6 +348,8 @@ Discover what's inside.</h1>
           };
 
           await mindarInstance.start();
+          // Fix 1: MindAR injects its overlay during start(); hide anything it added.
+          arContainer.querySelectorAll('[class*="mindar-ui"]').forEach(function (el) { el.style.display = 'none'; });
           renderer.setAnimationLoop(function () {
             renderer.render(scene, camera);
           });
@@ -344,6 +370,22 @@ Discover what's inside.</h1>
 
       if (startScanningButton) {
         startScanningButton.addEventListener("click", startMindAR);
+      }
+
+      // Fix 4: X button on the scan screen stops AR and returns to landing.
+      const closeScanButton = document.querySelector('#scan-screen .icon-btn[aria-label="Close scan"]');
+      if (closeScanButton) {
+        closeScanButton.addEventListener("click", function () {
+          console.log("AR stopped, returning to landing");
+          stopAR();
+          setActiveScreen("landing");
+        });
+      }
+
+      // Fix 5: Try Again on the error screen re-runs the full AR initialisation flow.
+      const tryAgainButton = document.querySelector('#error-screen .scan-button');
+      if (tryAgainButton) {
+        tryAgainButton.addEventListener("click", startMindAR);
       }
     })();
   </script>

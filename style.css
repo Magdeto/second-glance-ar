@@ -484,6 +484,19 @@ body {
   border-color: transparent;
 }
 
+/* Fix 1: suppress MindAR's built-in loading / scanning overlay UI entirely. */
+.mindar-ui-overlay {
+  display: none !important;
+}
+
+/* Fix 2: scan-frame and related scan UI are only rendered while the scan screen is active. */
+#scan-screen:not(.is-active) .scan-frame,
+#scan-screen:not(.is-active) .scan-frame-inner,
+#scan-screen:not(.is-active) .scan-pulse,
+#scan-screen:not(.is-active) .scan-hud {
+  display: none;
+}
+
 /* Larger devices: keep it responsive in a centered phone-stage preview. */
 @media (min-width: 768px) {
   body {
