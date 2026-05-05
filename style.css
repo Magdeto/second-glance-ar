@@ -50,7 +50,7 @@ body {
 .screen {
   position: absolute;
   inset: 0;
-  padding: calc(72px + env(safe-area-inset-top)) 28px calc(36px + env(safe-area-inset-bottom));
+  padding: 40px 28px 36px;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;

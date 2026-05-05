@@ -18,9 +18,9 @@
         <span class="micro">SG · 001</span>
         <span class="micro">v0.4 · beta</span>
       </div>
-      <div class="flex-landing" style="display: flex; flex-direction: column; justify-content: space-between; gap: 20vh;">
+      <div class="flex-landing" style="display: flex; flex-direction: column; justify-content: space-between; gap: 10vh;">
         <div class="logo-wrap">
-          <svg width="56" height="56" viewBox="0 0 80.72 89.89" fill="none" aria-hidden="true">
+          <svg width="80" height="80" viewBox="0 0 80.72 89.89" fill="none" aria-hidden="true">
             <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" color="#f4f1ea">
               <g id="sparkles">
                 <path id="sparkle-3" d="M49.99,29.3c.42-.61.61-1.81.61-1.81,0,0,.2,1.37.69,1.7s1.76.5,1.76.5c0,0-1.36.35-1.73.79s-.61,1.81-.61,1.81c0,0-.35-1.38-.69-1.7s-1.76-.5-1.76-.5c0,0,1.32-.18,1.73-.79Z"></path>
@@ -38,10 +38,10 @@
           <!-- <span class="wordmark">Second Glance</span> -->
         </div>
         <div class="landing-copy">
-          <!-- <span class="micro">FIELD GUIDE - No01</span> -->
+          <span class="micro">Care to look?</span>
           <h1>Point. Scan.
-  Discover what's inside.</h1>
-          <p>A second glance at the everyday objects you don't even care to look at.</p>
+  Discover what's inside. Second glance.</h1>
+          <!-- <p>A second glance at the everyday objects you don't even care to look at.</p> -->
         </div>
       </div>
         <button id="start-scanning-btn" class="scan-button" type="button">
@@ -123,7 +123,7 @@
 
         <div class="scan-instruction">
           <!-- Fix 4: text is set dynamically during the detection delay; empty by default. -->
-          <strong class="scan-instruction-text"></strong>
+          <strong class="scan-instruction-text">Point to a sticker to scan</strong>
           <span class="micro">SG · 001</span>
         </div>
       </div>
@@ -137,11 +137,11 @@
       </div>
 
       <div class="error-top">
-        <button class="icon-btn" type="button" aria-label="Back">
-          <!-- <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+        <!-- <button class="icon-btn" type="button" aria-label="Back">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
             <path d="M15 18l-6-6 6-6"></path>
-          </svg> -->
-        </button>
+          </svg>
+        </button> -->
       </div>
 
       <div class="camera-block-icon">
@@ -349,7 +349,7 @@
             if (playTimeout0) { clearTimeout(playTimeout0); playTimeout0 = null; }
             videoEl.pause();
             setScanStatus('ready');
-            instructionText.textContent = '';
+            instructionText.textContent = 'Oops, looks like you lost your sticker';
             scanFrame.classList.remove("scan-frame--target-found");
           };
 
@@ -389,7 +389,7 @@
             if (playTimeout1) { clearTimeout(playTimeout1); playTimeout1 = null; }
             videoEl2.pause();
             setScanStatus('ready');
-            instructionText.textContent = '';
+            instructionText.textContent = 'Oops, looks like you lost your sticker';
             scanFrame.classList.remove("scan-frame--target-found");
           };
 
