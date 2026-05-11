@@ -306,7 +306,7 @@ body {
 .scan-overlay {
   position: absolute;
   inset: 0;
-  padding: calc(60px + env(safe-area-inset-top)) 18px calc(112px + env(safe-area-inset-bottom));
+  padding: calc(60px + env(safe-area-inset-top)) 6.15% calc(112px + env(safe-area-inset-bottom));
   background: radial-gradient(transparent 40%, rgba(0, 0, 0, 0.24) 100%);
 }
 
