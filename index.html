@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a0a" />
   <title>Second Glance - Phase 1 Shell</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -176,13 +177,6 @@
       </div>
     </section>
 
-    <!-- Temporary developer nav for screen previews. -->
-    <nav class="dev-nav" aria-label="Developer screen switcher">
-      <button type="button" data-target="landing" class="is-current">Landing</button>
-      <button type="button" data-target="loading">Loading</button>
-      <button type="button" data-target="scan">Scan</button>
-      <button type="button" data-target="error">Error</button>
-    </nav>
   </main>
 
   <script type="module">
@@ -193,7 +187,6 @@
     // Phase 1 state: only one full-screen section can be active at a time.
     (function () {
       const screens = Array.from(document.querySelectorAll(".screen[data-screen]"));
-      const navButtons = Array.from(document.querySelectorAll(".dev-nav button[data-target]"));
       const startScanningButton = document.getElementById("start-scanning-btn");
       const arContainer = document.getElementById("ar-container");
       let mindarInstance = null;
@@ -222,11 +215,14 @@
       function setScanStatus(state) {
         const dot = document.querySelector('.scan-status .scan-dot');
         const label = document.getElementById('scan-status-label');
+        const frame = document.querySelector('.scan-frame');
         if (!dot || !label) return;
         dot.classList.remove('scan-dot--scanning');
+        if (frame) frame.classList.remove('is-scanning');
         if (state === 'scanning') {
           dot.classList.add('scan-dot--scanning');
           label.textContent = 'SCANNING';
+          if (frame) frame.classList.add('is-scanning');
         } else if (state === 'locked') {
           label.textContent = 'LOCKED';
         } else {
@@ -245,20 +241,7 @@
           const isMatch = screen.dataset.screen === targetName;
           screen.classList.toggle("is-active", isMatch);
         });
-
-        navButtons.forEach((button) => {
-          const isCurrent = button.dataset.target === targetName;
-          button.classList.toggle("is-current", isCurrent);
-          button.setAttribute("aria-pressed", String(isCurrent));
-        });
       }
-
-      // Developer preview controls: tap buttons to inspect each UI state.
-      navButtons.forEach((button) => {
-        button.addEventListener("click", function () {
-          setActiveScreen(button.dataset.target);
-        });
-      });
 
       // Requests camera access first so users see the browser permission prompt
       // before MindAR attempts to load targets.

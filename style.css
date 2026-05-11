@@ -28,7 +28,7 @@ html, body {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background: var(--color-frame);
+  background-color: #0a0a0a;
   color: var(--color-fg);
   font-family: "Inter Tight", system-ui, -apple-system, sans-serif;
 }
@@ -63,6 +63,17 @@ body {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+}
+
+#landing-screen,
+#loading-screen,
+#error-screen {
+  background: linear-gradient(
+    135deg,
+    #232323 0%,
+    #161616 50%,
+    #000000 100%
+  );
 }
 
 .micro {
@@ -119,6 +130,7 @@ body {
 .landing-screen {
   display: flex;
   flex-direction: column;
+  padding-top: env(safe-area-inset-top);
 }
 
 .landing-copy {
@@ -141,6 +153,10 @@ body {
   font-size: 16px;
   line-height: 1.5;
   color: var(--color-dim);
+}
+
+#start-scanning-btn {
+  margin-top: auto;
 }
 
 .scan-button {
@@ -328,6 +344,16 @@ body {
   box-shadow: 0 0 10px var(--color-accent);
 }
 
+/* Fix 5: scan frame pulse during SCANNING state — opacity only, no colour change. */
+@keyframes frame-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+.is-scanning {
+  animation: frame-pulse 1.6s ease-in-out infinite;
+}
+
 /* Fix 3: scan status dot animation states. */
 @keyframes scan-dot-blink {
   0%, 100% { opacity: 1; }
@@ -471,43 +497,6 @@ body {
   border-color: var(--color-accent);
 }
 
-/* Developer-only preview nav; remove in Phase 5. */
-.dev-nav {
-  position: absolute;
-  left: 50%;
-  bottom: calc(8px + env(safe-area-inset-bottom));
-  transform: translateX(-50%);
-  width: calc(100% - 16px);
-  max-width: 374px;
-  z-index: 90;
-  padding: 8px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(20, 19, 15, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-}
-
-.dev-nav button {
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--color-fg);
-  font-family: "JetBrains Mono", ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.dev-nav button.is-current {
-  color: var(--color-bg);
-  background: var(--color-fg);
-  border-color: transparent;
-}
 
 /* Fix 1: suppress MindAR's built-in loading / scanning overlay UI entirely. */
 .mindar-ui-overlay {
