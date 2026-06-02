@@ -181,6 +181,7 @@
 
   <script type="module">
     import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import * as MindARExports from 'https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js';
     const MindARThree = MindARExports.MindARThree ?? MindARExports.default?.MindARThree ?? MindARExports.default;
 
@@ -285,6 +286,7 @@
 
           // Fix 1: ensure canvas is visible and suppress any overlay MindAR created at instantiation.
           mindarInstance.renderer.domElement.style.display = 'block';
+          mindarInstance.renderer.domElement.style.zIndex = '1';
           const mindARUI = document.querySelector('.mindar-ui-overlay');
           if (mindARUI) mindARUI.style.display = 'none';
 
@@ -292,35 +294,30 @@
           const scene = mindarInstance.scene;
           const camera = mindarInstance.camera;
 
-          // Phase 3: Set up the image target anchor for sticker 1 before MindAR starts.
-          const videoEl = document.getElementById("video-scene-1");
+          const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+          scene.add(ambientLight);
+          const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+          dirLight.position.set(0, 5, 5);
+          scene.add(dirLight);
+
+          // Sticker 1: GLB model anchor.
           const scanFrame = document.querySelector(".scan-frame");
           const instructionText = document.querySelector('.scan-instruction-text');
           const anchor = mindarInstance.addAnchor(0);
 
-          // Plane width = 1 matches MindAR's normalised target width.
-          // Height is corrected from video aspect ratio once metadata loads.
-          const geometry = new THREE.PlaneGeometry(1, 1);
-          const texture = new THREE.VideoTexture(videoEl);
-          texture.minFilter = THREE.LinearFilter;
-          const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-          const plane = new THREE.Mesh(geometry, material);
-          videoEl.addEventListener("loadedmetadata", function () {
-            if (videoEl.videoHeight > 0) {
-              plane.scale.set(1, videoEl.videoHeight / videoEl.videoWidth, 1);
-            }
-          }, { once: true });
-          anchor.group.add(plane);
+          const gltfLoader = new GLTFLoader();
+          gltfLoader.load('./Assets/bubblegum.glb', function (gltf) {
+            gltf.scene.scale.set(1, 1, 1);
+            anchor.group.add(gltf.scene);
+          });
 
           anchor.onTargetFound = function () {
             console.log("Target 0 found");
             setScanStatus('scanning');
             instructionText.textContent = 'Hold steady...';
             scanFrame.classList.add("scan-frame--target-found");
-            // Fix 4: 2.5s anticipation delay before video plays.
             playTimeout0 = setTimeout(function () {
               playTimeout0 = null;
-              videoEl.play().catch(function (err) { console.log("[MindAR] video play blocked", err); });
               setScanStatus('locked');
               instructionText.textContent = '';
             }, 2500);
@@ -328,9 +325,7 @@
 
           anchor.onTargetLost = function () {
             console.log("Target 0 lost");
-            // Fix 4: cancel the delay if target is lost before video starts.
             if (playTimeout0) { clearTimeout(playTimeout0); playTimeout0 = null; }
-            videoEl.pause();
             setScanStatus('ready');
             instructionText.textContent = 'Oops, looks like you lost your sticker';
             scanFrame.classList.remove("scan-frame--target-found");
