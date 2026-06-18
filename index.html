@@ -305,10 +305,21 @@
           const instructionText = document.querySelector('.scan-instruction-text');
           const anchor = mindarInstance.addAnchor(0);
 
+          const clock = new THREE.Clock();
+          let mixer = null;
+
           const gltfLoader = new GLTFLoader();
           gltfLoader.load('./Assets/bubblegum.glb', function (gltf) {
-            gltf.scene.scale.set(1, 1, 1);
-            anchor.group.add(gltf.scene);
+            const model = gltf.scene;
+            model.scale.set(1, 1, 1);
+            model.rotation.y = -Math.PI / 2;
+            anchor.group.add(model);
+            model.rotation.x = -Math.PI / -2;
+            model.position.y = 0.1;
+            if (gltf.animations && gltf.animations.length > 0) {
+              mixer = new THREE.AnimationMixer(model);
+              mixer.clipAction(gltf.animations[0]).play();
+            }
           });
 
           anchor.onTargetFound = function () {
@@ -375,6 +386,7 @@
           // Fix 1: MindAR injects its overlay during start(); hide anything it added.
           arContainer.querySelectorAll('[class*="mindar-ui"]').forEach(function (el) { el.style.display = 'none'; });
           renderer.setAnimationLoop(function () {
+            if (mixer) mixer.update(clock.getDelta());
             renderer.render(scene, camera);
           });
 
